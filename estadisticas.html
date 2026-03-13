@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+<title>Estadísticas</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f1f5f9;
+padding:30px;
+}
+
+h1{
+margin-bottom:30px;
+}
+
+.grid{
+
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:20px;
+margin-bottom:40px;
+
+}
+
+.card{
+
+background:white;
+padding:25px;
+border-radius:10px;
+box-shadow:0 10px 20px rgba(0,0,0,0.1);
+
+}
+
+.valor{
+
+font-size:28px;
+font-weight:bold;
+color:#16a34a;
+
+}
+
+.graficas{
+
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:30px;
+
+}
+
+canvas{
+
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 10px 20px rgba(0,0,0,0.1);
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Estadísticas del Negocio</h1>
+
+<div class="grid">
+
+<div class="card">
+Ventas Totales
+<div class="valor" id="ventas">$0</div>
+</div>
+
+<div class="card">
+Número de Ventas
+<div class="valor" id="cantidad">0</div>
+</div>
+
+</div>
+
+<div class="graficas">
+
+<canvas id="ventasDia"></canvas>
+
+<canvas id="productosTop"></canvas>
+
+</div>
+
+<script>
+
+async function cargar(){
+
+let res = await fetch("/ventas")
+
+let ventas = await res.json()
+
+let total = 0
+
+let ventasPorDia = {}
+
+let productos = {}
+
+ventas.forEach(v=>{
+
+total += v.total
+
+let fecha = new Date(v.fecha).toLocaleDateString()
+
+if(!ventasPorDia[fecha]) ventasPorDia[fecha]=0
+
+ventasPorDia[fecha] += v.total
+
+let detalle = JSON.parse(v.detalle || "[]")
+
+detalle.forEach(p=>{
+
+if(!productos[p.nombre]) productos[p.nombre]=0
+
+productos[p.nombre]++
+
+})
+
+})
+
+document.getElementById("ventas").innerText="$"+total
+document.getElementById("cantidad").innerText=ventas.length
+
+crearGraficaVentas(ventasPorDia)
+crearGraficaProductos(productos)
+
+}
+
+function crearGraficaVentas(data){
+
+new Chart(document.getElementById("ventasDia"),{
+
+type:"line",
+
+data:{
+labels:Object.keys(data),
+
+datasets:[{
+label:"Ventas por día",
+data:Object.values(data),
+borderColor:"#16a34a",
+fill:false
+}]
+
+}
+
+})
+
+}
+
+function crearGraficaProductos(data){
+
+new Chart(document.getElementById("productosTop"),{
+
+type:"bar",
+
+data:{
+labels:Object.keys(data),
+
+datasets:[{
+label:"Productos vendidos",
+data:Object.values(data),
+backgroundColor:"#2563eb"
+}]
+
+}
+
+})
+
+}
+
+cargar()
+
+</script>
+
+</body>
+</html>

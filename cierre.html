@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+<meta charset="UTF-8">
+<title>Cierre de Caja</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#eef2f7;
+padding:40px;
+}
+
+h1{
+text-align:center;
+margin-bottom:40px;
+}
+
+.panel{
+
+max-width:600px;
+margin:auto;
+background:white;
+border-radius:15px;
+padding:30px;
+box-shadow:0 15px 35px rgba(0,0,0,0.2);
+
+}
+
+.item{
+
+display:flex;
+justify-content:space-between;
+margin-bottom:20px;
+font-size:18px;
+
+}
+
+.total{
+
+font-size:26px;
+font-weight:bold;
+color:#2563eb;
+
+}
+
+.btn{
+
+margin-top:20px;
+width:100%;
+padding:15px;
+border:none;
+border-radius:10px;
+background:#2563eb;
+color:white;
+font-size:18px;
+cursor:pointer;
+
+}
+
+.btn.cerrar{
+background:#ef4444;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Cierre de Caja</h1>
+
+<div class="panel">
+
+<div class="item">
+<span>Fecha</span>
+<span id="fecha"></span>
+</div>
+
+<div class="item">
+<span>Monto inicial</span>
+<span>$<span id="inicio"></span></span>
+</div>
+
+<div class="item">
+<span>Número de ventas</span>
+<span id="ventas"></span>
+</div>
+
+<div class="item total">
+<span>Total vendido</span>
+<span>$<span id="total"></span></span>
+</div>
+
+<div class="item total">
+<span>Total esperado en caja</span>
+<span>$<span id="totalCaja"></span></span>
+</div>
+
+<button class="btn cerrar" onclick="cerrarCaja()">
+Cerrar Caja
+</button>
+
+<button class="btn" onclick="window.location='dashboard.html'">
+Volver al Dashboard
+</button>
+
+</div>
+
+<script>
+
+/* =========================
+VERIFICAR CAJA ABIERTA
+========================= */
+
+if(localStorage.getItem("caja_abierta") !== "true"){
+alert("La caja no está abierta")
+window.location.href="abrir_caja.html"
+}
+
+/* =========================
+CARGAR DATOS
+========================= */
+
+async function cargar(){
+
+let res = await fetch("/ventas")
+
+let ventas = await res.json()
+
+let total = 0
+
+ventas.forEach(v=>{
+
+total += parseInt(v.total || 0)
+
+})
+
+let montoInicial = parseInt(localStorage.getItem("monto_inicial")) || 0
+
+document.getElementById("ventas").innerText = ventas.length
+
+document.getElementById("total").innerText = total
+
+document.getElementById("inicio").innerText = montoInicial
+
+document.getElementById("totalCaja").innerText = montoInicial + total
+
+document.getElementById("fecha").innerText =
+new Date().toLocaleDateString()
+
+}
+
+cargar()
+
+/* =========================
+CERRAR CAJA
+========================= */
+
+function cerrarCaja(){
+
+if(confirm("¿Seguro que desea cerrar la caja?")){
+
+localStorage.removeItem("caja_abierta")
+localStorage.removeItem("monto_inicial")
+
+alert("Caja cerrada correctamente")
+
+window.location.href="dashboard.html"
+
+}
+
+}
+
+</script>
+
+</body>
+</html>

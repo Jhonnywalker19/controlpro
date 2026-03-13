@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Usuarios</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f1f5f9;
+padding:40px;
+}
+
+h1{
+text-align:center;
+margin-bottom:30px;
+}
+
+.panel{
+max-width:600px;
+margin:auto;
+background:white;
+padding:30px;
+border-radius:10px;
+box-shadow:0 10px 30px rgba(0,0,0,0.1);
+}
+
+input,select{
+width:100%;
+padding:12px;
+margin-bottom:10px;
+border:1px solid #ddd;
+border-radius:6px;
+}
+
+button{
+width:100%;
+padding:14px;
+background:#2563eb;
+color:white;
+border:none;
+border-radius:6px;
+font-size:16px;
+cursor:pointer;
+}
+
+button:hover{
+background:#1d4ed8;
+}
+
+.lista{
+margin-top:30px;
+}
+
+.usuario{
+padding:10px;
+border-bottom:1px solid #eee;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Gestión de Usuarios</h1>
+
+<div class="panel">
+
+<input id="nombre" placeholder="Nombre">
+
+<input id="usuario" placeholder="Usuario">
+
+<input id="password" placeholder="Contraseña">
+
+<select id="rol">
+
+<option value="admin">Administrador</option>
+<option value="mesero">Mesero</option>
+<option value="cajero">Cajero</option>
+
+</select>
+
+<button onclick="crear()">Crear Usuario</button>
+
+<div class="lista" id="lista"></div>
+
+</div>
+
+<script>
+
+async function cargar(){
+
+let res = await fetch("/usuarios?restaurante_id=1")
+
+let usuarios = await res.json()
+
+let lista = document.getElementById("lista")
+
+lista.innerHTML=""
+
+usuarios.forEach(u=>{
+
+lista.innerHTML+=`
+<div class="usuario">
+${u.nombre} - ${u.rol}
+</div>
+`
+
+})
+
+}
+
+async function crear(){
+
+let nombre=document.getElementById("nombre").value
+let usuario=document.getElementById("usuario").value
+let password=document.getElementById("password").value
+let rol=document.getElementById("rol").value
+
+await fetch("/crearUsuario",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+nombre:nombre,
+usuario:usuario,
+password:password,
+rol:rol,
+restaurante_id:1
+
+})
+
+})
+
+alert("Usuario creado")
+
+cargar()
+
+}
+
+cargar()
+
+</script>
+
+</body>
+</html>

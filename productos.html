@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="UTF-8">
+<title>Panel Productos</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f1f5f9;
+padding:40px;
+}
+
+.card{
+background:white;
+padding:25px;
+border-radius:10px;
+box-shadow:0 10px 20px rgba(0,0,0,0.1);
+width:650px;
+margin-bottom:40px;
+}
+
+input,select{
+padding:10px;
+margin:5px;
+width:200px;
+}
+
+button{
+padding:10px;
+background:#2563eb;
+color:white;
+border:none;
+border-radius:6px;
+cursor:pointer;
+}
+
+.presentacion{
+background:#f4f6f9;
+padding:8px;
+border-radius:6px;
+margin-top:5px;
+}
+
+.producto{
+background:white;
+padding:12px;
+margin-top:10px;
+border-radius:10px;
+box-shadow:0 5px 15px rgba(0,0,0,0.1);
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+img{
+width:50px;
+border-radius:6px;
+}
+
+</style>
+</head>
+
+<body>
+
+<h2>Crear Categoría</h2>
+
+<input id="nuevaCategoria" placeholder="Nombre categoría">
+<button onclick="crearCategoria()">Crear</button>
+
+<h2>Crear Producto</h2>
+
+<div class="card">
+
+<input id="nombre" placeholder="Nombre producto">
+
+<select id="categoria"></select>
+
+<input type="file" id="imagen">
+
+<h3>Presentaciones</h3>
+
+<input id="tamano" placeholder="Ej: Pequeña">
+<input id="precio" placeholder="Precio">
+
+<button onclick="agregarPresentacion()">Agregar Presentación</button>
+
+<div id="listaPresentaciones"></div>
+
+<br>
+
+<button onclick="guardarProducto()">Guardar Producto</button>
+
+</div>
+
+<h3>Lista Productos</h3>
+
+<div id="lista"></div>
+
+<script>
+
+let presentaciones=[]
+
+let restaurante_id = localStorage.getItem("restaurante_id")
+
+/* =========================
+CARGAR CATEGORIAS
+========================= */
+
+async function cargarCategorias(){
+
+let res=await fetch("/categorias?restaurante_id="+restaurante_id)
+
+let data=await res.json()
+
+let select=document.getElementById("categoria")
+
+select.innerHTML=""
+
+data.forEach(c=>{
+
+select.innerHTML+=`<option>${c.nombre}</option>`
+
+})
+
+}
+
+/* =========================
+AGREGAR PRESENTACION
+========================= */
+
+function agregarPresentacion(){
+
+let nombre=document.getElementById("tamano").value
+let precio=document.getElementById("precio").value
+
+if(nombre=="" || precio==""){
+alert("Completa tamaño y precio")
+return
+}
+
+presentaciones.push({
+nombre:nombre,
+precio:precio
+})
+
+renderPresentaciones()
+
+document.getElementById("tamano").value=""
+document.getElementById("precio").value=""
+
+}
+
+/* =========================
+MOSTRAR PRESENTACIONES
+========================= */
+
+function renderPresentaciones(){
+
+let cont=document.getElementById("listaPresentaciones")
+
+cont.innerHTML=""
+
+presentaciones.forEach(p=>{
+
+cont.innerHTML+=`
+
+<div class="presentacion">
+
+${p.nombre} - $${p.precio}
+
+</div>
+
+`
+
+})
+
+}
+
+/* =========================
+CREAR CATEGORIA
+========================= */
+
+async function crearCategoria(){
+
+let nombre=document.getElementById("nuevaCategoria").value
+
+await fetch("/categorias",{
+
+method:"POST",
+
+headers:{
+'Content-Type':'application/json'
+},
+
+body:JSON.stringify({
+nombre:nombre,
+restaurante_id:restaurante_id
+})
+
+})
+
+document.getElementById("nuevaCategoria").value=""
+
+cargarCategorias()
+
+}
+
+/* =========================
+GUARDAR PRODUCTO
+========================= */
+
+async function guardarProducto(){
+
+let nombre=document.getElementById("nombre").value
+let categoria=document.getElementById("categoria").value
+
+if(presentaciones.length==0){
+alert("Debes agregar al menos una presentación")
+return
+}
+
+let form=new FormData()
+
+form.append("nombre",nombre)
+form.append("categoria",categoria)
+form.append("tamanos",JSON.stringify(presentaciones))
+form.append("restaurante_id",restaurante_id)
+
+let img=document.getElementById("imagen").files[0]
+
+if(img){
+form.append("imagen",img)
+}
+
+await fetch("/productos",{
+
+method:"POST",
+body:form
+
+})
+
+presentaciones=[]
+
+renderPresentaciones()
+
+document.getElementById("nombre").value=""
+document.getElementById("imagen").value=""
+
+cargarProductos()
+
+}
+
+/* =========================
+LISTAR PRODUCTOS
+========================= */
+
+async function cargarProductos(){
+
+let res=await fetch("/productos?restaurante_id="+restaurante_id)
+
+let data=await res.json()
+
+let cont=document.getElementById("lista")
+
+cont.innerHTML=""
+
+data.forEach(p=>{
+
+let precio=0
+
+if(p.tamanos.length>0){
+precio=p.tamanos[0].precio
+}
+
+cont.innerHTML+=`
+
+<div class="producto">
+
+<img src="imagenes/${encodeURIComponent(p.imagen || "producto.png")}">
+
+<b>${p.nombre}</b>
+
+${p.categoria}
+
+$${precio}
+
+<button onclick="eliminar(${p.id})" style="background:red">Eliminar</button>
+
+</div>
+
+`
+
+})
+
+}
+
+/* =========================
+ELIMINAR PRODUCTO
+========================= */
+
+async function eliminar(id){
+
+if(!confirm("Eliminar producto?")) return
+
+await fetch("/productos/"+id,{
+method:"DELETE"
+})
+
+cargarProductos()
+
+}
+
+/* ========================= */
+
+cargarCategorias()
+cargarProductos()
+
+</script>
+
+</body>
+</html>

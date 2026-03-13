@@ -1,0 +1,117 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+<title>Abrir Caja - ControlPro</title><style>
+
+body{
+font-family:Arial;
+background:#f4f6f9;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+margin:0;
+}
+
+.container{
+background:white;
+padding:40px;
+border-radius:12px;
+width:350px;
+box-shadow:0 10px 30px rgba(0,0,0,0.1);
+text-align:center;
+}
+
+img{
+height:60px;
+margin-bottom:10px;
+}
+
+input{
+width:100%;
+padding:12px;
+margin-top:10px;
+margin-bottom:20px;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+button{
+width:100%;
+padding:14px;
+background:#16a34a;
+border:none;
+color:white;
+border-radius:6px;
+font-size:16px;
+cursor:pointer;
+}
+
+button:hover{
+background:#15803d;
+}
+
+</style></head><body><div class="container"><img src="imagenes/logo.png"><h2>Abrir Caja</h2><input id="monto" type="number" placeholder="Monto inicial en caja"><button onclick="abrirCaja()">Abrir Caja</button>
+
+</div><script>
+
+async function abrirCaja(){
+
+/* SI YA ESTA ABIERTA */
+
+if(localStorage.getItem("caja_abierta") === "true"){
+alert("La caja ya está abierta")
+window.location.href="dashboard.html"
+return
+}
+
+let monto=document.getElementById("monto").value
+
+if(monto===""){
+alert("Ingrese el monto inicial")
+return
+}
+
+/* ENVIAR A LA API */
+
+let respuesta = await fetch("/caja/movimiento",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+restaurante_id:1,
+usuario:"admin",
+tipo:"apertura",
+concepto:"Apertura de caja",
+entrada:Number(monto),
+salida:0,
+metodo_pago:"efectivo"
+
+})
+
+})
+
+let data = await respuesta.json()
+
+if(data.ok){
+
+localStorage.setItem("caja_abierta","true")
+localStorage.setItem("monto_inicial",monto)
+
+alert("Caja abierta correctamente")
+
+window.location.href="dashboard.html"
+
+}else{
+
+alert("Error abriendo caja")
+
+}
+
+}
+
+</script></body>
+</html>
