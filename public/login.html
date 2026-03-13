@@ -1,0 +1,225 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+<title>ControlPro POS - Login</title><link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#16a34a"><style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Segoe UI,Roboto,Arial;
+}
+
+body{
+height:100vh;
+display:flex;
+}
+
+/* LADO IZQUIERDO */
+
+.left{
+width:50%;
+background:linear-gradient(135deg,#0ea5a4,#16a34a);
+color:white;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+padding:40px;
+}
+
+.left h1{
+font-size:42px;
+margin-bottom:10px;
+}
+
+.left p{
+font-size:18px;
+text-align:center;
+max-width:400px;
+line-height:1.4;
+}
+
+/* LADO DERECHO */
+
+.right{
+width:50%;
+display:flex;
+justify-content:center;
+align-items:center;
+background:#f4f6f9;
+}
+
+.card{
+background:white;
+padding:40px;
+width:350px;
+border-radius:12px;
+box-shadow:0 15px 40px rgba(0,0,0,0.08);
+text-align:center;
+}
+
+.card h2{
+margin-bottom:20px;
+}
+
+input{
+width:100%;
+padding:12px;
+margin-bottom:15px;
+border:1px solid #ddd;
+border-radius:6px;
+font-size:15px;
+transition:0.2s;
+}
+
+input:focus{
+outline:none;
+border-color:#16a34a;
+box-shadow:0 0 0 2px rgba(22,163,74,0.15);
+}
+
+/* BOTON */
+
+button{
+width:100%;
+padding:14px;
+background:#16a34a;
+border:none;
+color:white;
+border-radius:6px;
+font-size:16px;
+cursor:pointer;
+transition:0.15s;
+box-shadow:0 6px 0 #15803d;
+}
+
+button:hover{
+background:#15803d;
+}
+
+button:active{
+transform:translateY(3px);
+box-shadow:0 3px 0 #14532d;
+}
+
+.soporte{
+margin-top:12px;
+font-size:14px;
+}
+
+.soporte a{
+color:#16a34a;
+text-decoration:none;
+}
+
+.error{
+color:#ef4444;
+font-size:14px;
+margin-bottom:10px;
+display:none;
+}
+
+</style></head><body><div class="left"><h1>ControlPro POS</h1><p>
+Sistema inteligente para restaurantes.<br>
+Controla mesas, ventas y caja.
+</p></div><div class="right"><div class="card"><h2>Iniciar sesión</h2><div id="error" class="error"></div><input id="usuario" placeholder="Usuario"><input id="password" type="password" placeholder="Contraseña"><button onclick="login()">Entrar</button>
+
+<div class="soporte">
+¿Olvidaste tu contraseña?
+<a href="https://wa.me/573137877373">Contactar soporte</a>
+</div></div></div><script>
+
+/* ENTER PARA LOGIN */
+
+document.addEventListener("keydown",function(e){
+
+if(e.key==="Enter"){
+login()
+}
+
+})
+
+/* LOGIN */
+
+async function login(){
+
+const usuario = document.getElementById("usuario").value.trim()
+const password = document.getElementById("password").value.trim()
+const errorBox = document.getElementById("error")
+
+errorBox.style.display="none"
+
+if(!usuario || !password){
+
+errorBox.innerText="Ingrese usuario y contraseña"
+errorBox.style.display="block"
+return
+
+}
+
+try{
+
+const res = await fetch("/auth/login",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+usuario:usuario,
+password:password
+})
+
+})
+
+const data = await res.json()
+
+if(data.ok){
+
+localStorage.setItem("usuario",usuario)
+localStorage.setItem("rol",data.rol)
+localStorage.setItem("restaurante_id",data.restaurante_id)
+
+/* IR AL DASHBOARD */
+
+window.location.href="dashboard.html"
+
+}else{
+
+errorBox.innerText = data.error || "Usuario o contraseña incorrectos"
+errorBox.style.display="block"
+
+}
+
+}catch(error){
+
+console.error(error)
+errorBox.innerText="No se pudo conectar con el servidor"
+errorBox.style.display="block"
+
+}
+
+}
+
+/* SERVICE WORKER PARA APP */
+
+if("serviceWorker" in navigator){
+
+window.addEventListener("load", function(){
+
+navigator.serviceWorker.register("/service-worker.js")
+.then(function(){
+console.log("Service Worker registrado")
+})
+.catch(function(error){
+console.log("Error SW:",error)
+})
+
+})
+
+}
+
+</script></body>
+</html>

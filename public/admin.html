@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+<meta charset="UTF-8">
+<title>ControlPro Admin</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f1f5f9;
+padding:40px;
+margin:0;
+}
+
+h1{
+margin-bottom:20px;
+}
+
+.panel{
+background:white;
+padding:20px;
+border-radius:12px;
+max-width:700px;
+box-shadow:0 10px 20px rgba(0,0,0,0.1);
+margin-bottom:30px;
+}
+
+input,select{
+width:100%;
+padding:10px;
+margin-bottom:10px;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+button{
+padding:10px 20px;
+border:none;
+background:#16a34a;
+color:white;
+border-radius:6px;
+cursor:pointer;
+}
+
+.lista{
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0 10px 20px rgba(0,0,0,0.1);
+margin-bottom:30px;
+}
+
+.item{
+padding:10px;
+border-bottom:1px solid #eee;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Panel Administrador ControlPro</h1>
+
+<!-- CREAR RESTAURANTE -->
+
+<div class="panel">
+
+<h3>Crear Restaurante</h3>
+
+<input id="nombre" placeholder="Nombre restaurante">
+<input id="usuario" placeholder="Usuario login">
+<input id="password" placeholder="Password">
+<input id="vencimiento" placeholder="Fecha vencimiento (YYYY-MM-DD)">
+
+<button onclick="crearRestaurante()">Crear Restaurante</button>
+
+</div>
+
+<div class="lista" id="listaRestaurantes"></div>
+
+<!-- CREAR USUARIOS -->
+
+<div class="panel">
+
+<h3>Crear Usuario</h3>
+
+<input id="nombreUsuario" placeholder="Nombre">
+
+<input id="usuarioLogin" placeholder="Usuario">
+
+<input id="passwordUsuario" placeholder="Password">
+
+<select id="rol">
+<option value="admin">Administrador</option>
+<option value="mesero">Mesero</option>
+<option value="cajero">Cajero</option>
+</select>
+
+<input id="restauranteId" placeholder="ID Restaurante">
+
+<button onclick="crearUsuario()">Crear Usuario</button>
+
+</div>
+
+<div class="lista" id="listaUsuarios"></div>
+
+<script>
+
+/* =============================
+CARGAR RESTAURANTES
+============================= */
+
+async function cargarRestaurantes(){
+
+let res = await fetch("/restaurantes")
+
+let data = await res.json()
+
+let cont = document.getElementById("listaRestaurantes")
+
+cont.innerHTML=""
+
+data.forEach(r=>{
+
+cont.innerHTML+=`
+
+<div class="item">
+
+<b>ID ${r.id} - ${r.nombre}</b><br>
+
+Usuario: ${r.usuario}<br>
+
+Vence: ${r.fecha_vencimiento}<br>
+
+Estado: ${r.estado}
+
+</div>
+
+`
+
+})
+
+}
+
+/* =============================
+CREAR RESTAURANTE
+============================= */
+
+async function crearRestaurante(){
+
+let nombre=document.getElementById("nombre").value
+let usuario=document.getElementById("usuario").value
+let password=document.getElementById("password").value
+let vencimiento=document.getElementById("vencimiento").value
+
+await fetch("/crearRestaurante",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+nombre,
+usuario,
+password,
+fecha_vencimiento:vencimiento
+})
+
+})
+
+cargarRestaurantes()
+
+}
+
+/* =============================
+CREAR USUARIO
+============================= */
+
+async function crearUsuario(){
+
+let nombre=document.getElementById("nombreUsuario").value
+let usuario=document.getElementById("usuarioLogin").value
+let password=document.getElementById("passwordUsuario").value
+let rol=document.getElementById("rol").value
+let restaurante_id=document.getElementById("restauranteId").value
+
+await fetch("/crearUsuario",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+nombre,
+usuario,
+password,
+rol,
+restaurante_id
+})
+
+})
+
+cargarUsuarios()
+
+}
+
+/* =============================
+LISTAR USUARIOS
+============================= */
+
+async function cargarUsuarios(){
+
+let res = await fetch("/usuarios?restaurante_id=1")
+
+let data = await res.json()
+
+let cont = document.getElementById("listaUsuarios")
+
+cont.innerHTML=""
+
+data.forEach(u=>{
+
+cont.innerHTML+=`
+
+<div class="item">
+
+<b>${u.nombre}</b><br>
+
+Usuario: ${u.usuario}<br>
+
+Rol: ${u.rol}<br>
+
+Restaurante ID: ${u.restaurante_id}
+
+</div>
+
+`
+
+})
+
+}
+
+cargarRestaurantes()
+cargarUsuarios()
+
+</script>
+
+</body>
+</html>

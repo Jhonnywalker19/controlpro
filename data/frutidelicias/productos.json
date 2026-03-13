@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "nombre": "Jugo de Mango",
+    "categoria": "Bebidas",
+    "precio": 8000
+  },
+  {
+    "id": 2,
+    "nombre": "Hamburguesa",
+    "categoria": "Comidas",
+    "precio": 15000
+  },
+  {
+    "id": 3,
+    "nombre": "Helado",
+    "categoria": "Postres",
+    "precio": 7000
+  }
+]

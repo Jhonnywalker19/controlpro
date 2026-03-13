@@ -1,0 +1,305 @@
+<!DOCTYPE html><html lang="es"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>ControlPro</title><style>
+
+body{
+margin:0;
+font-family:Arial;
+display:flex;
+height:100vh;
+background:#f1f5f9;
+overflow:hidden;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+width:240px;
+background:#0f172a;
+color:white;
+padding:20px;
+box-sizing:border-box;
+display:flex;
+flex-direction:column;
+transition:0.3s;
+}
+
+.sidebar h2{
+margin-bottom:25px;
+text-align:center;
+}
+
+/* SECCIONES */
+
+.seccion{
+margin-top:18px;
+margin-bottom:10px;
+font-size:11px;
+opacity:0.6;
+letter-spacing:1px;
+}
+
+/* BOTONES */
+
+.menu button{
+
+width:100%;
+margin-bottom:8px;
+padding:12px;
+border:none;
+border-radius:8px;
+background:#1e293b;
+color:white;
+cursor:pointer;
+font-size:14px;
+transition:0.2s;
+
+display:flex;
+align-items:center;
+gap:8px;
+
+}
+
+.menu button:hover{
+background:#334155;
+}
+
+.menu button.activo{
+background:#10b981;
+}
+
+/* SUBMENU */
+
+.submenu{
+display:none;
+margin-left:10px;
+}
+
+.submenu button{
+background:#020617;
+font-size:13px;
+}
+
+/* USUARIO */
+
+.usuario{
+margin-top:auto;
+font-size:13px;
+opacity:0.8;
+text-align:center;
+}
+
+/* CONTENIDO */
+
+.contenido{
+flex:1;
+display:flex;
+flex-direction:column;
+}
+
+/* TOPBAR */
+
+.topbar{
+
+background:white;
+height:60px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:0 25px;
+border-bottom:1px solid #e5e7eb;
+
+}
+
+.topbar span{
+font-weight:bold;
+}
+
+/* BOTON MENU MOVIL */
+
+.menuMovil{
+display:none;
+background:#10b981;
+border:none;
+color:white;
+padding:8px 14px;
+border-radius:6px;
+cursor:pointer;
+margin-right:10px;
+}
+
+/* BOTON CERRAR */
+
+.topbar button{
+
+background:#ef4444;
+border:none;
+color:white;
+padding:8px 14px;
+border-radius:6px;
+cursor:pointer;
+
+}
+
+/* AREA */
+
+.area{
+flex:1;
+}
+
+iframe{
+width:100%;
+height:100%;
+border:none;
+background:white;
+}
+
+/* RESPONSIVE */
+
+@media (max-width:900px){
+
+.sidebar{
+position:absolute;
+left:-240px;
+top:0;
+height:100%;
+z-index:10;
+}
+
+.sidebar.activa{
+left:0;
+}
+
+.menuMovil{
+display:block;
+}
+
+}
+
+</style></head><body><!-- SIDEBAR --><div class="sidebar" id="sidebar"><h2>ControlPro</h2><div class="menu"><div class="seccion">OPERACIÓN</div><button class="activo" onclick="abrir(this,'mesas.html')">
+🍽 Mesas
+</button><button onclick="abrir(this,'pos.html')">
+🧾 POS
+</button><button onclick="abrir(this,'cocina.html')">
+👨‍🍳 Cocina
+</button><div class="seccion">VENTAS</div><button onclick="toggleMenu('ventasMenu')">
+💰 Ventas
+</button><div id="ventasMenu" class="submenu"><button onclick="abrir(this,'ventas.html')">
+Historial ventas
+</button><button onclick="abrir(this,'reportes.html')">
+Reportes
+</button><button onclick="abrir(this,'estadisticas.html')">
+Estadísticas
+</button></div><div class="seccion">GESTIÓN</div><button onclick="abrir(this,'productos.html')">
+📦 Productos
+</button><button onclick="abrir(this,'impresoras.html')">
+🖨 Impresoras
+</button><button onclick="abrir(this,'usuarios.html')">
+👥 Usuarios
+</button><div class="seccion">CAJA</div><button onclick="abrir(this,'abrir_caja.html')">
+💵 Abrir Caja
+</button><button onclick="abrir(this,'cierre.html')">
+🔒 Cierre Caja
+</button><div class="seccion">ADMIN</div><button onclick="toggleMenu('adminMenu')">
+⚙ Administración
+</button><div id="adminMenu" class="submenu"><button onclick="abrir(this,'admin_dashboard.html')">
+Dashboard Admin
+</button><button onclick="abrir(this,'admin.html')">
+Panel Admin
+</button></div></div><div class="usuario">
+Usuario:<br>
+<b id="usuario"></b>
+</div></div><!-- CONTENIDO --><div class="contenido"><div class="topbar"><div style="display:flex;align-items:center"><button class="menuMovil" onclick="toggleSidebar()">
+☰
+</button><span>Panel de Control</span>
+
+</div><button onclick="cerrarSesion()">
+Cerrar Sesión
+</button></div><div class="area">
+<iframe id="visor"></iframe>
+</div></div><script>
+
+/* =========================
+VERIFICAR SESION
+========================= */
+
+let usuario = localStorage.getItem("usuario")
+
+if(!usuario){
+
+alert("Sesión expirada")
+
+window.location.href="login.html"
+
+}
+
+/* MOSTRAR USUARIO */
+
+let rol = localStorage.getItem("rol") || "usuario"
+
+document.getElementById("usuario").innerText =
+usuario + " ("+rol+")"
+
+/* =========================
+CARGAR PAGINA INICIAL
+========================= */
+
+document.getElementById("visor").src = "mesas.html"
+
+/* =========================
+CAMBIAR MODULO
+========================= */
+
+function abrir(btn,pagina){
+
+document.getElementById("visor").src = pagina
+
+document.querySelectorAll(".menu button").forEach(b=>{
+b.classList.remove("activo")
+})
+
+btn.classList.add("activo")
+
+}
+
+/* =========================
+SUBMENUS
+========================= */
+
+function toggleMenu(id){
+
+let menu=document.getElementById(id)
+
+menu.style.display =
+menu.style.display=="block" ? "none" : "block"
+
+}
+
+/* =========================
+SIDEBAR MOVIL
+========================= */
+
+function toggleSidebar(){
+
+document.getElementById("sidebar").classList.toggle("activa")
+
+}
+
+/* =========================
+CERRAR SESION
+========================= */
+
+function cerrarSesion(){
+
+if(confirm("¿Cerrar sesión?")){
+
+localStorage.clear()
+
+window.location.href="login.html"
+
+}
+
+}
+
+</script></body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html><html>
+<head>
+<meta charset="UTF-8">
+<title>Historial de Ventas</title><style>
+
+body{
+font-family:Arial;
+background:#f1f5f9;
+padding:30px;
+}
+
+h1{
+text-align:center;
+margin-bottom:30px;
+}
+
+.tabla{
+max-width:900px;
+margin:auto;
+background:white;
+border-radius:15px;
+overflow:hidden;
+box-shadow:0 20px 40px rgba(0,0,0,0.15);
+}
+
+.fila{
+display:flex;
+justify-content:space-between;
+padding:15px 20px;
+border-bottom:1px solid #eee;
+cursor:pointer;
+}
+
+.fila:hover{
+background:#f8fafc;
+}
+
+.info{
+display:flex;
+flex-direction:column;
+}
+
+.fecha{
+color:#555;
+font-size:14px;
+}
+
+.mesa{
+font-size:13px;
+color:#888;
+}
+
+.total{
+font-weight:bold;
+color:#2563eb;
+font-size:18px;
+}
+
+.detalle{
+padding:20px;
+background:#f9fafb;
+display:none;
+}
+
+.producto{
+margin-bottom:10px;
+padding-bottom:10px;
+border-bottom:1px solid #eee;
+}
+
+.volver{
+
+display:block;
+width:200px;
+margin:30px auto;
+padding:15px;
+border:none;
+background:#2563eb;
+color:white;
+font-weight:bold;
+border-radius:10px;
+cursor:pointer;
+
+}
+
+</style></head><body><h1>Historial de Ventas</h1><div class="tabla" id="tabla"></div><button class="volver" onclick="window.location='pos.html'">
+Volver al POS
+</button><script>
+
+async function cargarVentas(){
+
+let res = await fetch("/ventas")
+
+let ventas = await res.json()
+
+let tabla = document.getElementById("tabla")
+
+tabla.innerHTML=""
+
+ventas.forEach(v=>{
+
+let productos = JSON.parse(v.detalle)
+
+let detalleHTML=""
+
+productos.forEach(p=>{
+
+detalleHTML+=`
+
+<div class="producto">
+
+<b>${p.nombre}</b> - $${p.precio}
+
+${p.sabor ? "<br>🍨 Sabor: "+p.sabor : ""}
+
+${p.obs ? "<br>📝 Obs: "+p.obs : ""}
+
+</div>
+
+`
+
+})
+
+tabla.innerHTML+=`
+
+<div>
+
+<div class="fila" onclick="toggle(${v.id})">
+
+<div class="info">
+
+<div class="fecha">📅 ${v.fecha}</div>
+
+<div class="mesa">Mesa: ${v.mesa || "N/A"} | Usuario: ${v.usuario || "N/A"}</div>
+
+</div>
+
+<div class="total">$${v.total}</div>
+
+</div>
+
+<div class="detalle" id="detalle${v.id}">
+
+${detalleHTML}
+
+</div>
+
+</div>
+
+`
+
+})
+
+}
+
+function toggle(id){
+
+let d = document.getElementById("detalle"+id)
+
+if(d.style.display=="block"){
+
+d.style.display="none"
+
+}else{
+
+d.style.display="block"
+
+}
+
+}
+
+cargarVentas()
+
+</script></body>
+</html>

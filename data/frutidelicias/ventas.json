@@ -1,0 +1,38 @@
+[
+  {
+    "mesa": "General",
+    "total": 7000,
+    "metodo": "nequi",
+    "productos": [
+      {
+        "nombre": "Helado",
+        "precio": 7000
+      }
+    ],
+    "fecha": "7/3/2026, 10:30:25 p. m."
+  },
+  {
+    "mesa": "General",
+    "total": 8000,
+    "metodo": "efectivo",
+    "productos": [
+      {
+        "nombre": "Jugo de Mango",
+        "precio": 8000
+      }
+    ],
+    "fecha": "7/3/2026, 11:58:08 p. m."
+  },
+  {
+    "mesa": "General",
+    "total": 8000,
+    "metodo": "efectivo",
+    "productos": [
+      {
+        "nombre": "Jugo de Mango",
+        "precio": 8000
+      }
+    ],
+    "fecha": "8/3/2026, 12:29:41 a. m."
+  }
+]

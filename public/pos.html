@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>ControlPro POS</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:#eef2f7;
+display:flex;
+height:100vh;
+overflow:hidden;
+}
+
+/* CATEGORIAS */
+
+.categorias{
+width:200px;
+background:#14b8a6;
+padding:15px;
+overflow:auto;
+}
+
+.categoria{
+padding:10px;
+margin-bottom:10px;
+border-radius:8px;
+background:#0f766e;
+color:white;
+font-weight:bold;
+text-align:center;
+cursor:pointer;
+}
+
+/* PRODUCTOS */
+
+.productos{
+flex:1;
+padding:20px;
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+gap:15px;
+overflow:auto;
+}
+
+.producto{
+background:white;
+border-radius:10px;
+padding:10px;
+text-align:center;
+cursor:pointer;
+box-shadow:0 5px 10px rgba(0,0,0,0.15);
+}
+
+.producto img{
+width:80px;
+height:80px;
+object-fit:cover;
+border-radius:8px;
+}
+
+/* PEDIDO */
+
+.pedido{
+width:320px;
+background:white;
+padding:15px;
+display:flex;
+flex-direction:column;
+overflow:auto;
+}
+
+.item{
+padding:8px;
+border-left:4px solid #14b8a6;
+margin-bottom:8px;
+background:#f8fafc;
+cursor:pointer;
+}
+
+.totalFinal{
+background:#16a34a;
+color:white;
+font-size:22px;
+font-weight:bold;
+padding:15px;
+margin-top:10px;
+display:flex;
+justify-content:space-between;
+}
+
+/* BOTONES */
+
+.panelAcciones{
+width:130px;
+background:#f3f4f6;
+padding:10px;
+display:flex;
+flex-direction:column;
+overflow:auto;
+}
+
+.accion{
+padding:10px;
+margin-bottom:6px;
+border:none;
+border-radius:8px;
+color:white;
+font-weight:bold;
+cursor:pointer;
+}
+
+.btnBuscar{background:#3b82f6;}
+.btnEditar{background:#22c55e;}
+.btnMover{background:#f59e0b;}
+.btnImprimir{background:#eab308;}
+.btnAnular{background:#ef4444;}
+.btnCortesia{background:#a855f7;}
+.btnDescuento{background:#06b6d4;}
+.btnPagar{background:#16a34a;}
+.btnDividir{background:#fb923c;}
+.btnCambiar{background:#14b8a6;}
+
+.modal{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.4);
+display:none;
+justify-content:center;
+align-items:center;
+}
+
+.modalContenido{
+background:white;
+padding:25px;
+border-radius:10px;
+width:320px;
+text-align:center;
+}
+
+.btnTam{
+display:block;
+width:100%;
+margin:6px 0;
+padding:10px;
+border:none;
+border-radius:8px;
+background:#14b8a6;
+color:white;
+font-weight:bold;
+cursor:pointer;
+}
+
+input{
+width:100%;
+padding:8px;
+margin-top:5px;
+margin-bottom:8px;
+}
+
+/* ===============================
+RESPONSIVE TABLET
+================================ */
+
+@media (max-width:900px){
+
+.categorias{
+width:150px;
+}
+
+.panelAcciones{
+width:100px;
+}
+
+.productos{
+grid-template-columns:repeat(auto-fill,minmax(120px,1fr));
+}
+
+}
+
+/* ===============================
+RESPONSIVE CELULAR
+================================ */
+
+@media (max-width:600px){
+
+body{
+flex-direction:column;
+}
+
+/* categorias horizontal */
+
+.categorias{
+width:100%;
+display:flex;
+overflow-x:auto;
+gap:10px;
+}
+
+.categoria{
+min-width:120px;
+margin-bottom:0;
+}
+
+/* productos */
+
+.productos{
+grid-template-columns:repeat(2,1fr);
+padding:10px;
+margin-bottom:260px;
+}
+
+/* pedido abajo */
+
+.pedido{
+position:fixed;
+bottom:0;
+left:0;
+width:100%;
+height:220px;
+border-top:3px solid #e5e7eb;
+z-index:10;
+}
+
+/* acciones arriba */
+
+.panelAcciones{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:5px;
+padding:6px;
+z-index:11;
+}
+
+.accion{
+font-size:12px;
+padding:8px;
+margin:0;
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="categorias" id="listaCategorias"></div>
+
+<div class="productos" id="productos"></div>
+
+<div class="pedido">
+
+<h3 id="mesaNumero"></h3>
+
+<h2>Pedido</h2>
+
+<div id="listaPedido"></div>
+
+<div style="display:flex;justify-content:space-between;margin-top:10px">
+
+<span>Subtotal</span>
+<span id="subtotal">$0</span>
+
+</div>
+
+<div class="totalFinal">
+
+<span>TOTAL</span>
+<span id="total">$0</span>
+
+</div>
+
+</div>
+
+<div class="panelAcciones">
+
+<button class="accion btnBuscar">Buscar</button>
+<button class="accion btnEditar">Editar</button>
+<button class="accion btnMover">Mover</button>
+
+<button class="accion btnImprimir" onclick="enviarCocina()">Imprimir</button>
+
+<button class="accion btnAnular" onclick="anularItem()">Anular</button>
+
+<button class="accion btnCortesia">Cortesía</button>
+
+<button class="accion btnDescuento">Descuento</button>
+
+<button class="accion btnPagar" onclick="abrirPago()">Pagar</button>
+
+<button class="accion btnDividir">Dividir</button>
+<button class="accion btnCambiar">Cambiar</button>
+
+</div>
+
+<!-- MODAL PRODUCTO -->
+
+<div class="modal" id="modalProducto">
+
+<div class="modalContenido">
+
+<h3 id="tituloProducto"></h3>
+
+<div id="listaTamanos"></div>
+
+<label>Sabor</label>
+<input id="sabores">
+
+<label>Observaciones</label>
+<input id="obs">
+
+<button class="btnTam" onclick="confirmarProducto()">Agregar</button>
+
+<button class="btnTam" onclick="cerrarModal()">Cancelar</button>
+
+</div>
+
+</div>
+
+<!-- MODAL PAGO -->
+
+<div class="modal" id="modalPago">
+
+<div class="modalContenido">
+
+<h3>Forma de Pago</h3>
+
+<button class="btnTam" onclick="pagarEfectivo()">Efectivo</button>
+<button class="btnTam" onclick="pagarDebito()">Tarjeta Débito</button>
+<button class="btnTam" onclick="pagarCredito()">Tarjeta Crédito</button>
+<button class="btnTam" onclick="pagarTransferencia()">Transferencia</button>
+
+<button class="btnTam" onclick="cerrarPago()">Cancelar</button>
+
+</div>
+
+</div>
+
+<script>
+
+/* TU SCRIPT ORIGINAL COMPLETO SIN CAMBIOS */
+
+let productos=[]
+let carrito=[]
+let total=0
+let seleccionado=null
+let productoActual=null
+let precioSeleccionado=0
+
+let params=new URLSearchParams(window.location.search)
+let mesa=params.get("mesa")||"1"
+
+document.getElementById("mesaNumero").innerText="Mesa "+mesa
+
+let guardado = JSON.parse(localStorage.getItem("pedido_"+mesa) || "[]")
+
+if(guardado.length>0){
+
+carrito=guardado
+
+guardado.forEach(p=>{
+total+=Number(p.precio)
+})
+
+}
+
+async function cargar(){
+
+let restaurante_id=localStorage.getItem("restaurante_id")
+
+let res=await fetch("/productos?restaurante_id="+restaurante_id)
+
+productos=await res.json()
+
+crearCategorias()
+mostrar(productos)
+renderPedido()
+
+}
+
+function crearCategorias(){
+
+let cont=document.getElementById("listaCategorias")
+
+let categorias=[...new Set(productos.map(p=>p.categoria))]
+
+cont.innerHTML=""
+
+categorias.forEach(c=>{
+
+cont.innerHTML+=`<div class="categoria" onclick="filtrar('${c}')">${c}</div>`
+
+})
+
+}
+
+function mostrar(lista){
+
+let cont=document.getElementById("productos")
+
+cont.innerHTML=""
+
+lista.forEach(p=>{
+
+cont.innerHTML+=`
+
+<div class="producto" onclick='abrirProducto(${JSON.stringify(p)})'>
+
+<img src="imagenes/${p.imagen || "producto.png"}">
+
+<div>${p.nombre}</div>
+
+</div>
+
+`
+
+})
+
+}
+
+function filtrar(cat){
+mostrar(productos.filter(p=>p.categoria==cat))
+}
+
+function abrirProducto(p){
+
+productoActual=p
+
+document.getElementById("tituloProducto").innerText=p.nombre
+
+let lista=document.getElementById("listaTamanos")
+
+lista.innerHTML=""
+
+p.tamanos.forEach(t=>{
+
+lista.innerHTML+=`
+<button class="btnTam" onclick="seleccionarTam(${t.precio})">
+${t.nombre} - $${t.precio}
+</button>
+`
+
+})
+
+document.getElementById("modalProducto").style.display="flex"
+
+}
+
+function seleccionarTam(precio){
+precioSeleccionado=precio
+}
+
+function confirmarProducto(){
+
+let sabores=document.getElementById("sabores").value
+let obs=document.getElementById("obs").value
+
+let item={
+nombre:productoActual.nombre,
+precio:precioSeleccionado,
+sabores:sabores,
+obs:obs
+}
+
+carrito.push(item)
+
+total+=Number(precioSeleccionado)
+
+localStorage.setItem("pedido_"+mesa,JSON.stringify(carrito))
+
+renderPedido()
+
+cerrarModal()
+
+}
+
+function cerrarModal(){
+
+document.getElementById("modalProducto").style.display="none"
+
+document.getElementById("sabores").value=""
+document.getElementById("obs").value=""
+
+}
+
+function renderPedido(){
+
+let cont=document.getElementById("listaPedido")
+
+cont.innerHTML=""
+
+carrito.forEach((p,i)=>{
+
+cont.innerHTML+=`
+
+<div class="item" onclick="seleccionar(${i})">
+
+<strong>${p.nombre}</strong> - $${p.precio}
+
+${p.sabores ? `<div style="font-size:12px">🍨 ${p.sabores}</div>`:""}
+
+${p.obs ? `<div style="font-size:12px">📝 ${p.obs}</div>`:""}
+
+</div>
+
+`
+
+})
+
+document.getElementById("subtotal").innerText="$"+total
+document.getElementById("total").innerText="$"+total
+
+}
+
+function seleccionar(i){
+seleccionado=i
+}
+
+function anularItem(){
+
+if(seleccionado==null){
+alert("Seleccione producto")
+return
+}
+
+total-=carrito[seleccionado].precio
+
+carrito.splice(seleccionado,1)
+
+localStorage.setItem("pedido_"+mesa,JSON.stringify(carrito))
+
+seleccionado=null
+
+renderPedido()
+
+}
+
+async function enviarCocina(){
+
+if(carrito.length==0){
+alert("No hay pedido")
+return
+}
+
+await fetch("/ventas/guardarPedido",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+mesa,
+productos:carrito
+})
+
+})
+
+alert("Pedido enviado a cocina")
+
+window.location.href="mesas.html"
+
+}
+
+function abrirPago(){
+
+if(carrito.length==0){
+alert("No hay pedido")
+return
+}
+
+document.getElementById("modalPago").style.display="flex"
+
+}
+
+function cerrarPago(){
+document.getElementById("modalPago").style.display="none"
+}
+
+function finalizarPago(){
+
+localStorage.removeItem("pedido_"+mesa)
+localStorage.removeItem("mesa_"+mesa)
+
+carrito=[]
+total=0
+
+renderPedido()
+
+cerrarPago()
+
+window.location.href="mesas.html"
+
+}
+
+function pagarEfectivo(){alert("Pago efectivo registrado");finalizarPago()}
+function pagarDebito(){alert("Pago débito registrado");finalizarPago()}
+function pagarCredito(){alert("Pago crédito registrado");finalizarPago()}
+function pagarTransferencia(){alert("Pago transferencia registrado");finalizarPago()}
+
+cargar()
+
+</script>
+
+</body>
+</html>

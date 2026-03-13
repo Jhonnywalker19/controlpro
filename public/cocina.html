@@ -1,0 +1,219 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+<title>Pantalla de Cocina</title><style>
+
+body{
+font-family:Arial;
+background:#111827;
+color:white;
+margin:0;
+padding:20px;
+}
+
+h1{
+text-align:center;
+margin-bottom:30px;
+}
+
+/* GRID PEDIDOS */
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,320px);
+gap:20px;
+}
+
+/* TARJETA PEDIDO */
+
+.ticket{
+
+background:#1f2937;
+border-radius:14px;
+padding:20px;
+box-shadow:0 10px 25px rgba(0,0,0,0.6);
+
+display:flex;
+flex-direction:column;
+
+}
+
+/* MESA */
+
+.mesa{
+font-size:22px;
+font-weight:bold;
+margin-bottom:5px;
+}
+
+/* TIEMPO */
+
+.tiempo{
+font-size:14px;
+color:#9ca3af;
+margin-bottom:10px;
+}
+
+/* PRODUCTOS */
+
+.producto{
+padding:6px 0;
+border-bottom:1px solid #374151;
+font-size:15px;
+}
+
+.detalle{
+font-size:12px;
+color:#9ca3af;
+margin-top:2px;
+}
+
+/* BOTON */
+
+.btn{
+margin-top:15px;
+padding:12px;
+border:none;
+background:#22c55e;
+color:white;
+font-weight:bold;
+border-radius:8px;
+cursor:pointer;
+font-size:15px;
+}
+
+.btn:hover{
+background:#16a34a;
+}
+
+</style></head><body><h1>Pedidos en Cocina</h1><div class="grid" id="pedidos"></div><script>
+
+/* =========================
+CARGAR PEDIDOS
+========================= */
+
+async function cargar(){
+
+let res = await fetch("/ventas/ventas")
+
+let ventas = await res.json()
+
+let cont = document.getElementById("pedidos")
+
+cont.innerHTML=""
+
+/* mostrar más recientes primero */
+
+ventas.reverse().forEach(v=>{
+
+let productos = JSON.parse(v.detalle)
+
+let htmlProductos=""
+
+productos.forEach(p=>{
+
+htmlProductos+=`
+
+<div class="producto">
+
+${p.nombre}
+
+${p.sabores ? `<div class="detalle">Sabores: ${p.sabores}</div>` : ""}
+
+${p.obs ? `<div class="detalle">Obs: ${p.obs}</div>` : ""}
+
+</div>
+
+`
+
+})
+
+cont.innerHTML+=`
+
+<div class="ticket">
+
+<div class="mesa">
+Mesa ${v.mesa || "-"}
+</div>
+
+<div class="tiempo" id="tiempo_${v.id}">
+Tiempo: calculando...
+</div>
+
+${htmlProductos}
+
+<button class="btn" onclick="terminado(${v.id})">
+PEDIDO LISTO
+</button>
+
+</div>
+
+`
+
+})
+
+calcularTiempos(ventas)
+
+}
+
+/* =========================
+CRONOMETRO
+========================= */
+
+function calcularTiempos(ventas){
+
+ventas.forEach(v=>{
+
+let fecha = new Date(v.fecha)
+
+setInterval(()=>{
+
+let seg = Math.floor((Date.now()-fecha)/1000)
+
+let min = Math.floor(seg/60)
+let s = seg%60
+
+let el=document.getElementById("tiempo_"+v.id)
+
+if(el){
+
+el.innerText =
+"Tiempo: "+min+":"+(s<10?"0"+s:s)
+
+}
+
+},1000)
+
+})
+
+}
+
+/* =========================
+PEDIDO LISTO
+========================= */
+
+async function terminado(id){
+
+await fetch("/ventas/pedidoListo",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({id})
+
+})
+
+alert("Pedido marcado como listo")
+
+cargar()
+
+}
+
+/* ========================= */
+
+setInterval(cargar,3000)
+
+cargar()
+
+</script></body></html>
