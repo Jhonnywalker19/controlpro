@@ -13,6 +13,14 @@ app.use(bodyParser.json())
 app.use(express.static("public"))
 
 /* ============================
+RUTA PRINCIPAL
+============================ */
+
+app.get("/", (req, res) => {
+  res.sendFile(__dirname + "/public/login.html")
+})
+
+/* ============================
 DATABASE
 ============================ */
 
@@ -54,8 +62,8 @@ app.use("/caja", cajaRoutes)
 TEST API
 ============================ */
 
-app.get("/test",(req,res)=>{
-res.json({mensaje:"Servidor funcionando correctamente"})
+app.get("/test", (req, res) => {
+  res.json({ mensaje: "Servidor funcionando correctamente" })
 })
 
 /* ============================
@@ -65,7 +73,5 @@ SERVER
 const PORT = process.env.PORT || 4000
 
 app.listen(PORT, () => {
-
-console.log("🚀 Servidor iniciado en puerto " + PORT)
-
+  console.log("🚀 Servidor iniciado en puerto " + PORT)
 })
