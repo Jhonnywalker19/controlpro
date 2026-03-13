@@ -12,7 +12,7 @@ MIDDLEWARE
 app.use(cors())
 app.use(bodyParser.json())
 
-/* servir archivos public */
+/* carpeta public */
 app.use(express.static(path.join(__dirname, "public")))
 
 /* ============================
@@ -56,3 +56,14 @@ app.use("/caja", require("./routes/caja"))
 console.log("Rutas cargadas correctamente")
 
 /* ============================
+SERVER
+============================ */
+
+const PORT = process.env.PORT || 4000
+
+app.listen(PORT, "0.0.0.0", () => {
+
+  console.log("🚀 Servidor iniciado en puerto " + PORT)
+  console.log("🌐 Servidor listo")
+
+})
