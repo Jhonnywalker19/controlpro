@@ -1,6 +1,7 @@
 const express = require("express")
 const bodyParser = require("body-parser")
 const cors = require("cors")
+const path = require("path")
 
 const app = express()
 
@@ -10,14 +11,14 @@ MIDDLEWARE
 
 app.use(cors())
 app.use(bodyParser.json())
-app.use(express.static("public"))
+app.use(express.static(path.join(__dirname, "public")))
 
 /* ============================
 RUTA PRINCIPAL
 ============================ */
 
 app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/public/login.html")
+  res.sendFile(path.join(__dirname, "public", "login.html"))
 })
 
 /* ============================
@@ -72,8 +73,6 @@ SERVER
 
 const PORT = process.env.PORT || 4000
 
-app.listen(PORT, () => {
-
+app.listen(PORT, "0.0.0.0", () => {
   console.log("🚀 Servidor iniciado en puerto " + PORT)
-
 })
