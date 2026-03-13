@@ -12,7 +12,7 @@ MIDDLEWARE
 app.use(cors())
 app.use(bodyParser.json())
 
-/* carpeta public */
+/* Servir archivos de la carpeta public */
 app.use(express.static(path.join(__dirname, "public")))
 
 /* ============================
@@ -20,7 +20,7 @@ RUTA PRINCIPAL
 ============================ */
 
 app.get("/", (req, res) => {
-  res.send("Servidor ControlPro funcionando 🚀")
+  res.send("🚀 ControlPro backend funcionando correctamente")
 })
 
 /* ============================
@@ -28,7 +28,10 @@ RUTA TEST
 ============================ */
 
 app.get("/test", (req, res) => {
-  res.json({ mensaje: "Servidor funcionando correctamente 🚀" })
+  res.json({
+    status: "ok",
+    mensaje: "Servidor funcionando correctamente 🚀"
+  })
 })
 
 /* ============================
@@ -59,8 +62,8 @@ console.log("Rutas cargadas correctamente")
 SERVER
 ============================ */
 
-const PORT = process.env.PORT || 8080
+const PORT = process.env.PORT
 
-app.listen(PORT, "0.0.0.0", () => {
+app.listen(PORT, () => {
   console.log("🚀 Servidor iniciado en puerto " + PORT)
 })
