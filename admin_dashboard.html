@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+<title>Dashboard</title>
+
+<style>
+
+body{
+font-family:Arial;
+margin:0;
+background:#f1f5f9;
+padding:25px;
+}
+
+h1{
+margin-bottom:25px;
+}
+
+.grid{
+
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:20px;
+
+}
+
+.card{
+
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0 10px 20px rgba(0,0,0,0.1);
+
+}
+
+.card h2{
+margin:0;
+font-size:28px;
+color:#10b981;
+}
+
+.card span{
+font-size:14px;
+color:#555;
+}
+
+.grafico{
+
+margin-top:40px;
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0 10px 20px rgba(0,0,0,0.1);
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Panel de Estadísticas</h1>
+
+<div class="grid">
+
+<div class="card">
+<h2 id="ventasHoy">$0</h2>
+<span>Ventas Hoy</span>
+</div>
+
+<div class="card">
+<h2 id="pedidosHoy">0</h2>
+<span>Pedidos Hoy</span>
+</div>
+
+<div class="card">
+<h2 id="usuarios">0</h2>
+<span>Usuarios</span>
+</div>
+
+<div class="card">
+<h2 id="productos">0</h2>
+<span>Productos</span>
+</div>
+
+</div>
+
+<div class="grafico">
+
+<h3>Ventas del día</h3>
+
+<canvas id="graficoVentas" height="120"></canvas>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+async function cargarDashboard(){
+
+try{
+
+let res = await fetch("/dashboard")
+
+let data = await res.json()
+
+document.getElementById("ventasHoy").innerText="$"+data.ventas
+document.getElementById("pedidosHoy").innerText=data.pedidos
+document.getElementById("usuarios").innerText=data.usuarios
+document.getElementById("productos").innerText=data.productos
+
+crearGrafico(data.grafico)
+
+}catch(e){
+
+console.log(e)
+
+}
+
+}
+
+function crearGrafico(datos){
+
+new Chart(document.getElementById("graficoVentas"),{
+
+type:"line",
+
+data:{
+labels:datos.horas,
+datasets:[{
+label:"Ventas",
+data:datos.valores
+}]
+}
+
+})
+
+}
+
+cargarDashboard()
+
+</script>
+
+</body>
+</html>

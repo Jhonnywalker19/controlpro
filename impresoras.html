@@ -1,0 +1,128 @@
+<!DOCTYPE html><html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Configurar Impresoras</title><style>
+
+body{
+font-family:Arial;
+background:#f1f5f9;
+padding:30px;
+}
+
+h1{
+margin-bottom:20px;
+}
+
+.form{
+background:white;
+padding:20px;
+border-radius:10px;
+margin-bottom:20px;
+box-shadow:0 10px 20px rgba(0,0,0,0.1);
+}
+
+input,select{
+
+width:100%;
+padding:10px;
+margin-bottom:10px;
+
+}
+
+button{
+
+padding:12px;
+background:#059669;
+color:white;
+border:none;
+cursor:pointer;
+border-radius:6px;
+
+}
+
+.lista{
+
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 10px 20px rgba(0,0,0,0.1);
+
+}
+
+.item{
+margin-bottom:15px;
+padding-bottom:10px;
+border-bottom:1px solid #eee;
+}
+
+</style></head><body><h1>Configuración de Impresoras</h1><div class="form"><input id="nombre" placeholder="Nombre impresora"><select id="tipo">
+<option value="usb">USB</option>
+<option value="red">Red</option>
+</select><input id="ip" placeholder="IP (solo si es red)">
+<input id="puerto" placeholder="Puerto (ej: 9100)">
+<input id="area" placeholder="Área (cocina, barra, caja)"><button onclick="guardar()">Guardar impresora</button>
+
+</div><div class="lista" id="lista"></div><script>
+
+async function cargar(){
+
+let res = await fetch("/impresoras")
+
+let data = await res.json()
+
+let cont = document.getElementById("lista")
+
+cont.innerHTML=""
+
+data.forEach(i=>{
+
+cont.innerHTML+=`
+
+<div class="item">
+
+<b>${i.nombre}</b>
+
+<br>
+
+Tipo: ${i.tipo}
+
+<br>
+
+Área: ${i.area}
+
+</div>
+
+`
+
+})
+
+}
+
+async function guardar(){
+
+let nombre=document.getElementById("nombre").value
+let tipo=document.getElementById("tipo").value
+let ip=document.getElementById("ip").value
+let puerto=document.getElementById("puerto").value
+let area=document.getElementById("area").value
+
+await fetch("/impresoras",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({nombre,tipo,ip,puerto,area})
+
+})
+
+cargar()
+
+}
+
+cargar()
+
+</script></body>
+</html>

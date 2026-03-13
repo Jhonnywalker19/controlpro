@@ -2,10 +2,17 @@
   "name": "controlpro",
   "version": "1.0.0",
   "description": "",
+<<<<<<< HEAD
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+=======
+  "main": "server.js",
+"scripts": {
+  "start": "node server.js"
+},
+>>>>>>> 441a63e5a263e53062084298d905b4c476e74a3c
   "keywords": [],
   "author": "",
   "license": "ISC",

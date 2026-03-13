@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ControlPro Mesas</title>
+
+<script>
+if(!localStorage.getItem("caja_abierta")){
+  window.location.href="abrir_caja.html"
+}
+</script>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f3f4f6;
+padding:20px;
+margin:0;
+}
+
+h1{
+margin-bottom:20px;
+}
+
+/* PANEL SUPERIOR */
+
+.panelMesas{
+display:flex;
+gap:10px;
+margin-bottom:30px;
+flex-wrap:wrap;
+align-items:center;
+}
+
+.panelMesas input{
+padding:10px;
+border-radius:8px;
+border:1px solid #ccc;
+width:200px;
+}
+
+.panelMesas button{
+padding:10px 15px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;
+}
+
+/* BOTONES */
+
+.btnCrear{background:#2563eb;color:white;}
+.btnEditar{background:#f59e0b;color:white;}
+.btnEliminar{background:#ef4444;color:white;}
+.btnActualizar{background:#10b981;color:white;}
+
+/* GRID MESAS */
+
+.gridMesas{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+gap:20px;
+}
+
+/* TARJETA */
+
+.mesa{
+height:130px;
+border-radius:14px;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+font-weight:bold;
+cursor:pointer;
+transition:.2s;
+box-shadow:0 10px 18px rgba(0,0,0,0.15);
+padding:10px;
+text-align:center;
+}
+
+/* ESTADOS */
+
+.libre{
+background:white;
+border:2px solid #e5e7eb;
+color:#111827;
+}
+
+.ocupada{
+background:#16a34a;
+color:white;
+}
+
+.pagar{
+background:#ef4444;
+color:white;
+}
+
+.mesa:hover{
+transform:translateY(-5px);
+}
+
+.numero{
+font-size:18px;
+}
+
+.info{
+font-size:12px;
+margin-top:4px;
+}
+
+.seccion{
+grid-column:1/-1;
+font-size:18px;
+font-weight:bold;
+margin-top:20px;
+color:#374151;
+}
+
+/* ======================
+TABLET
+====================== */
+
+@media (max-width:900px){
+
+.gridMesas{
+grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+}
+
+.mesa{
+height:120px;
+}
+
+}
+
+/* ======================
+CELULAR
+====================== */
+
+@media (max-width:600px){
+
+body{
+padding:10px;
+}
+
+.panelMesas{
+flex-direction:column;
+align-items:stretch;
+}
+
+.panelMesas input{
+width:100%;
+}
+
+.panelMesas button{
+width:100%;
+}
+
+.gridMesas{
+grid-template-columns:repeat(2,1fr);
+gap:12px;
+}
+
+.mesa{
+height:110px;
+font-size:14px;
+}
+
+.numero{
+font-size:16px;
+}
+
+.info{
+font-size:11px;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>Mesas</h1>
+
+<div class="panelMesas">
+
+<input id="nombreMesa" placeholder="Nombre mesa">
+
+<button class="btnCrear" onclick="crearMesa()">Crear</button>
+<button class="btnEditar" onclick="editarMesa()">Editar</button>
+<button class="btnEliminar" onclick="eliminarMesa()">Eliminar</button>
+<button class="btnActualizar" onclick="cargarMesas()">Actualizar</button>
+
+</div>
+
+<div class="gridMesas" id="contenedorMesas"></div>
+
+<script>
+
+let mesas=[]
+
+/* =========================
+CARGAR MESAS
+========================= */
+
+async function cargarMesas(){
+
+let res = await fetch("/mesas/mesas")
+
+mesas = await res.json()
+
+mesas.sort((a,b)=>{
+
+let n1=parseInt(a.nombre.replace(/\D/g,'')) || 0
+let n2=parseInt(b.nombre.replace(/\D/g,'')) || 0
+
+return n1-n2
+
+})
+
+renderMesas()
+
+}
+
+/* =========================
+TIEMPO MESA
+========================= */
+
+function tiempoMesa(nombre){
+
+let inicio = localStorage.getItem("mesa_"+nombre)
+
+if(!inicio) return "0:00"
+
+inicio = Number(inicio)
+
+if(isNaN(inicio)) return "0:00"
+
+let diff = Date.now() - inicio
+
+let seg = Math.floor(diff/1000)
+
+let min = Math.floor(seg/60)
+
+let s = seg % 60
+
+return min + ":" + (s<10 ? "0"+s : s)
+
+}
+
+/* =========================
+RENDER MESAS
+========================= */
+
+function renderMesas(){
+
+let cont=document.getElementById("contenedorMesas")
+
+cont.innerHTML=""
+
+/* SEPARAR TIPOS */
+
+let mesasSalon = mesas.filter(m=>m.nombre.toUpperCase().includes("MESA"))
+let domicilios = mesas.filter(m=>m.nombre.toUpperCase().includes("DOMICILIO"))
+let llevar = mesas.filter(m=>m.nombre.toUpperCase().includes("LLEVAR"))
+
+function pintar(lista,titulo){
+
+if(lista.length===0) return
+
+cont.innerHTML+=`
+<div class="seccion">${titulo}</div>
+`
+
+lista.forEach(m=>{
+
+let pedido = JSON.parse(localStorage.getItem("pedido_"+m.nombre) || "[]")
+
+if(pedido.length===0){
+localStorage.removeItem("mesa_"+m.nombre)
+localStorage.removeItem("estado_"+m.nombre)
+}
+
+let total=0
+
+pedido.forEach(p=>{
+total += Number(p.precio || 0)
+})
+
+let estado="libre"
+
+if(pedido.length>0){
+estado="ocupada"
+}
+
+let clase="libre"
+
+if(estado==="ocupada") clase="ocupada"
+if(estado==="pagar") clase="pagar"
+
+cont.innerHTML+=`
+
+<div class="mesa ${clase}" onclick="abrirMesa('${m.nombre}')">
+
+<div class="numero">${m.nombre}</div>
+
+<div class="info">
+Tiempo: ${tiempoMesa(m.nombre)}
+</div>
+
+<div class="info">
+Productos: ${pedido.length}
+</div>
+
+<div class="info">
+Total: $${total.toLocaleString()}
+</div>
+
+</div>
+
+`
+
+})
+
+}
+
+pintar(mesasSalon,"MESAS")
+pintar(domicilios,"DOMICILIOS")
+pintar(llevar,"LLEVAR Y RECOGER")
+
+}
+
+/* =========================
+CREAR MESA
+========================= */
+
+async function crearMesa(){
+
+let nombre=document.getElementById("nombreMesa").value
+
+if(!nombre){
+alert("Ingrese nombre")
+return
+}
+
+await fetch("/mesas/crearMesa",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({nombre})
+
+})
+
+document.getElementById("nombreMesa").value=""
+
+cargarMesas()
+
+}
+
+/* =========================
+EDITAR MESA
+========================= */
+
+async function editarMesa(){
+
+let actual = prompt("Mesa actual")
+
+let nuevo = prompt("Nuevo nombre")
+
+if(!actual || !nuevo) return
+
+await fetch("/mesas/editarMesa",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+nombre:actual,
+nuevo:nuevo
+})
+
+})
+
+cargarMesas()
+
+}
+
+/* =========================
+ELIMINAR MESA
+========================= */
+
+async function eliminarMesa(){
+
+let nombre = prompt("Nombre mesa eliminar")
+
+if(!nombre) return
+
+await fetch("/mesas/eliminarMesa",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({nombre})
+
+})
+
+localStorage.removeItem("pedido_"+nombre)
+localStorage.removeItem("mesa_"+nombre)
+localStorage.removeItem("estado_"+nombre)
+
+cargarMesas()
+
+}
+
+/* =========================
+ABRIR POS
+========================= */
+
+function abrirMesa(nombre){
+
+if(!localStorage.getItem("mesa_"+nombre)){
+localStorage.setItem("mesa_"+nombre,Date.now())
+}
+
+parent.document.getElementById("visor").src =
+`pos.html?mesa=${encodeURIComponent(nombre)}`
+
+}
+
+/* ========================= */
+
+setInterval(renderMesas,1000)
+
+cargarMesas()
+
+</script>
+
+</body>
+</html>

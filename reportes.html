@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+<title>Reportes de Ventas</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f1f5f9;
+padding:40px;
+}
+
+h1{
+margin-bottom:30px;
+}
+
+.panel{
+
+background:white;
+padding:25px;
+border-radius:12px;
+box-shadow:0 10px 25px rgba(0,0,0,0.1);
+margin-bottom:30px;
+
+}
+
+input{
+
+padding:10px;
+margin-right:10px;
+border-radius:6px;
+border:1px solid #ccc;
+
+}
+
+button{
+
+padding:10px 20px;
+background:#2563eb;
+color:white;
+border:none;
+border-radius:6px;
+cursor:pointer;
+
+}
+
+.resultado{
+
+background:white;
+padding:25px;
+border-radius:12px;
+box-shadow:0 10px 25px rgba(0,0,0,0.1);
+
+}
+
+.item{
+
+display:flex;
+justify-content:space-between;
+padding:10px 0;
+border-bottom:1px solid #eee;
+
+}
+
+.total{
+
+font-size:24px;
+font-weight:bold;
+color:#16a34a;
+margin-top:20px;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Reportes de Ventas</h1>
+
+<div class="panel">
+
+<label>Desde:</label>
+<input type="date" id="desde">
+
+<label>Hasta:</label>
+<input type="date" id="hasta">
+
+<button onclick="buscar()">
+Buscar
+</button>
+
+</div>
+
+<div class="resultado">
+
+<div id="lista"></div>
+
+<div class="total">
+Total vendido: $<span id="total">0</span>
+</div>
+
+</div>
+
+<script>
+
+async function buscar(){
+
+let desde = document.getElementById("desde").value
+let hasta = document.getElementById("hasta").value
+
+let res = await fetch("/ventas")
+
+let ventas = await res.json()
+
+let total = 0
+
+let cont = document.getElementById("lista")
+
+cont.innerHTML=""
+
+ventas.forEach(v=>{
+
+let fecha = new Date(v.fecha).toISOString().slice(0,10)
+
+if((!desde || fecha>=desde) && (!hasta || fecha<=hasta)){
+
+total += v.total
+
+cont.innerHTML += `
+
+<div class="item">
+
+<span>
+Venta #${v.id}
+</span>
+
+<span>
+$${v.total}
+</span>
+
+</div>
+
+`
+
+}
+
+})
+
+document.getElementById("total").innerText = total
+
+}
+
+</script>
+
+</body>
+
+</html>
