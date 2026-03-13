@@ -20,7 +20,7 @@ RUTA PRINCIPAL
 ============================ */
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "login.html"))
+  res.send("Servidor ControlPro funcionando 🚀")
 })
 
 /* ============================
@@ -59,11 +59,8 @@ console.log("Rutas cargadas correctamente")
 SERVER
 ============================ */
 
-const PORT = process.env.PORT || 4000
+const PORT = process.env.PORT || 8080
 
 app.listen(PORT, "0.0.0.0", () => {
-
   console.log("🚀 Servidor iniciado en puerto " + PORT)
-  console.log("🌐 Servidor listo")
-
 })
