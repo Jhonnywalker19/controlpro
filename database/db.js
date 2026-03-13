@@ -2,12 +2,12 @@ const sqlite3 = require("sqlite3").verbose()
 const path = require("path")
 
 /* ===============================
-RUTA ABSOLUTA BASE DE DATOS
+RUTA BASE DE DATOS
 =============================== */
 
-const dbPath = path.join(__dirname, "..", "controlpro.db")
+const dbPath = path.join(__dirname, "controlpro.db")
 
-console.log("📁 Usando base de datos en:", dbPath)
+console.log("📦 Usando base de datos en:", dbPath)
 
 /* ===============================
 CONEXIÓN BASE DE DATOS
@@ -19,14 +19,14 @@ if(err){
 console.log("❌ Error conectando a la base de datos")
 console.log(err)
 }else{
-console.log("✅ Base de datos conectada correctamente")
+console.log("🟢 Base de datos conectada correctamente")
 }
 
 })
 
-/* ===================================
+/* ===============================
 TABLA IMPRESORAS
-=================================== */
+=============================== */
 
 db.run(`
 CREATE TABLE IF NOT EXISTS impresoras(
@@ -39,9 +39,9 @@ area TEXT
 )
 `)
 
-/* ===================================
+/* ===============================
 TABLA RESTAURANTES
-=================================== */
+=============================== */
 
 db.run(`
 CREATE TABLE IF NOT EXISTS restaurantes(
@@ -55,9 +55,9 @@ estado TEXT
 )
 `)
 
-/* ===================================
+/* ===============================
 TABLA USUARIOS
-=================================== */
+=============================== */
 
 db.run(`
 CREATE TABLE IF NOT EXISTS usuarios(
@@ -70,9 +70,9 @@ restaurante_id INTEGER
 )
 `)
 
-/* ===================================
+/* ===============================
 TABLA MOVIMIENTOS CAJA
-=================================== */
+=============================== */
 
 db.run(`
 CREATE TABLE IF NOT EXISTS movimientos_caja(
